@@ -1,0 +1,12 @@
+fastapi[standard]
+uvicorn[standard]
+sqlalchemy
+simplejson
+pytz
+pika
+psycopg2-binary
+jwt
+python-dotenv
+passlib
+bcrypt
+pyjwt

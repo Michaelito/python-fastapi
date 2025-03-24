@@ -1,0 +1,38 @@
+{
+    // Use o IntelliSense para saber mais sobre os atributos possíveis.
+    // Focalizar para exibir as descrições dos atributos existentes.
+    // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "url": "http://localhost:8000/docs",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "name": "Depurador do Python: FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "cwd": "${workspaceFolder}/src",
+            "args": [
+                "main:app",
+                "--host=0.0.0.0",
+                "--port=8000",
+                // "--reload"
+            ],
+            "jinja": true
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Python + navegador",
+            "configurations": [
+                "Depurador do Python: FastAPI",
+                "Launch Chrome"
+            ]
+        }
+    ]
+}

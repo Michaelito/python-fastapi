@@ -1,0 +1,11 @@
+
+GET http://localhost:9001/health HTTP/2.0
+
+### Post Login
+POST http://localhost:9001/auth/login  HTTP/2.0
+Content-Type: application/json
+
+{
+  "login": "michael.santos@v8.tech",
+  "password": "123456789"
+}
