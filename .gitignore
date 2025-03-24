@@ -1,0 +1,6 @@
+.venv
+.env
+.vscode
+
+requirements.txt
+requirements-dev.txt
