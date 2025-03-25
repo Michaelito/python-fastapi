@@ -34,7 +34,7 @@ class AuthService:
                     db_session=conn, data=data)
 
                 if not user:
-                    raise self._create_http_exception(
+                    raise self.create_http_exception(
                         status.HTTP_401_UNAUTHORIZED, ExceptionError.UNAUTHORIZED.value
                     )
 
@@ -45,13 +45,12 @@ class AuthService:
 
         except Exception as e:
             self._logger.error(f"Login error: {e}")
-            raise self._create_http_exception(
+            raise self.create_http_exception(
                 status.HTTP_500_INTERNAL_SERVER_ERROR, ExceptionError.INTERNAL_ERROR.value
             )
 
     def generate_jwt_token(self, data) -> dict:
-
-        self._logger.info(f"---generate_jwt_token----: {data}")
+        self._logger.info("---generate_jwt_token----")
 
         expire_time = datetime.utcnow() + timedelta(hours=self._jwt_expire_hours)
 
@@ -70,34 +69,43 @@ class AuthService:
         return {"access_token": access_token, "token_type": "bearer"}
 
     def decode_token(self, token: str) -> dict:
+        self._logger.debug("----------decode_token-----------")
         try:
             return jwt.decode(token, self._jwt_secret, algorithms=[self._jwt_algorithm])
+
         except jwt.ExpiredSignatureError:
-            raise self._create_http_exception(
+            raise self.create_http_exception(
                 status.HTTP_401_UNAUTHORIZED, ExceptionError.TOKEN_EXPIRED.value
             )
         except jwt.InvalidTokenError:
-            raise self._create_http_exception(
+            raise self.create_http_exception(
                 status.HTTP_401_UNAUTHORIZED, ExceptionError.TOKEN_INVALID.value
             )
 
     def get_current_user(self, request: Request) -> dict:
+        self._logger.debug("----------get_current_user-----------")
         token = request.headers.get("Authorization")
+
         if not token:
-            raise self._create_http_exception(
+            raise self.create_http_exception(
                 status.HTTP_401_UNAUTHORIZED, ExceptionError.TOKEN_INVALID.value
             )
+
         try:
             scheme, _, token = token.partition(" ")
+
             if scheme.lower() != "bearer":
-                raise self._create_http_exception(
+                raise self.create_http_exception(
                     status.HTTP_401_UNAUTHORIZED, ExceptionError.TOKEN_INVALID.value
                 )
+
             return self.decode_token(token)
+
         except HTTPException as e:
             raise e
 
-    def _create_http_exception(self, status_code: int, detail: str) -> HTTPException:
+    def create_http_exception(self, status_code: int, detail: str) -> HTTPException:
+        self._logger.debug("----------create_http_exception-----------")
         return HTTPException(
             status_code=status_code, detail=detail, headers={
                 "WWW-Authenticate": "Bearer"}
