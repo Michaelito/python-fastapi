@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from db.model.user import UserModel
 from enums.exception_error import ExceptionError
-from schemas.user import ResquestAuthToken  # Corrected import
+from schemas.user import ResquestAuthToken
 from utils.functions import hash_password, verify_password
 
 

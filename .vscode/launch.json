@@ -12,7 +12,7 @@
             "webRoot": "${workspaceFolder}"
         },
         {
-            "name": "Depurador do Python: FastAPI",
+            "name": "Debug Python: FastAPI",
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
@@ -30,7 +30,7 @@
         {
             "name": "Python + navegador",
             "configurations": [
-                "Depurador do Python: FastAPI",
+                "Debug Python: FastAPI",
                 "Launch Chrome"
             ]
         }

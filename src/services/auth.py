@@ -26,15 +26,19 @@ class AuthService:
 
     def login(self, data: ResquestAuthToken) -> dict:
         self._logger.info(f"Login attempt: {data}")
+
         try:
             with create_db_session() as conn:
+
                 user = self._user_rep.get_user_by_login_password(
                     db_session=conn, data=data)
+
                 if not user:
                     raise self._create_http_exception(
                         status.HTTP_401_UNAUTHORIZED, ExceptionError.UNAUTHORIZED.value
                     )
-                return self._generate_login_response(user)
+
+                return self.generate_jwt_token(user)
 
         except HTTPException as http_exc:
             raise http_exc
@@ -45,38 +49,25 @@ class AuthService:
                 status.HTTP_500_INTERNAL_SERVER_ERROR, ExceptionError.INTERNAL_ERROR.value
             )
 
-    def _generate_login_response(self, user) -> dict:
+    def generate_jwt_token(self, data) -> dict:
+
+        self._logger.info(f"---generate_jwt_token----: {data}")
+
         expire_time = datetime.utcnow() + timedelta(hours=self._jwt_expire_hours)
-        expire_timestamp = int(time.mktime(expire_time.timetuple()))
-        session_id = str(uuid.uuid4())
 
-        payload = {
-            "session_id": session_id,
-            "id_user": str(user.id_user),
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "role": user.cd_role,
-            "email": user.email,
-            "exp": expire_timestamp,
-        }
-
-        access_token = self.generate_jwt_token(payload)
-        self._logger.info(f"Generated token with session_id {session_id}")
-
-        return {"access_token": access_token, "token_type": "bearer"}
-
-    def generate_jwt_token(self, user) -> str:
-        expire_time = datetime.utcnow() + timedelta(hours=self._jwt_expire_hours)
         payload = {
             "session_id": str(uuid.uuid4()),
-            "id_user": str(user.id_user),
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "role": user.cd_role,
-            "email": user.email,
+            "first_name": data.first_name,
+            "last_name": data.last_name,
+            "role": data.cd_role,
+            "email": data.email,
             "exp": int(time.mktime(expire_time.timetuple())),
         }
-        return jwt.encode(payload, self._jwt_secret, algorithm=self._jwt_algorithm)
+
+        access_token = jwt.encode(
+            payload, self._jwt_secret, algorithm=self._jwt_algorithm)
+
+        return {"access_token": access_token, "token_type": "bearer"}
 
     def decode_token(self, token: str) -> dict:
         try:
