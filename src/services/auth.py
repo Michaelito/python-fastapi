@@ -105,7 +105,6 @@ class AuthService:
             raise e
 
     def create_http_exception(self, status_code: int, detail: str) -> HTTPException:
-        self._logger.debug("----------create_http_exception-----------")
         return HTTPException(
             status_code=status_code, detail=detail, headers={
                 "WWW-Authenticate": "Bearer"}

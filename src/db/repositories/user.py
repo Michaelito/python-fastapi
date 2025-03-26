@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from db.model.user import UserModel
 from enums.exception_error import ExceptionError
 from schemas.user import ResquestAuthToken
-from utils.functions import hash_password, verify_password
+from utils.functions import hash_password_md5
 
 
 class UserRepository:
@@ -17,24 +17,24 @@ class UserRepository:
     ) -> UserModel:
         self._logger.debug("-------------repository----------")
 
+        pass_hash = hash_password_md5(data.password)
+
+        print(f"------pass_hash-----: {pass_hash}")
+
         user = (
             db_session.query(UserModel)
-            .filter(UserModel.email == data.login, UserModel.is_active == True)
+            .filter(
+                UserModel.email == data.login,
+                UserModel.password == pass_hash,
+                UserModel.is_active == True
+            )
             .first()
         )
-
-        hashed, salt = hash_password(data.password)
 
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=ExceptionError.USER_NOT_FOUND.value,
-            )
-
-        if not verify_password(data.password, hashed, salt):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=ExceptionError.UNAUTHORIZED.value,
             )
 
         return user
