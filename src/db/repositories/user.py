@@ -19,22 +19,22 @@ class UserRepository:
 
         pass_hash = hash_password_md5(data.password)
 
-        print(f"------pass_hash-----: {pass_hash}")
-
         user = (
             db_session.query(UserModel)
-            .filter(
-                UserModel.email == data.login,
-                UserModel.password == pass_hash,
-                UserModel.is_active == True
-            )
+            .filter(UserModel.email == data.login, UserModel.is_active == True)
             .first()
         )
 
         if not user:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_404_NOT_FOUND,
                 detail=ExceptionError.USER_NOT_FOUND.value,
+            )
+
+        if user.password != pass_hash:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=ExceptionError.INVALID_CREDENTIALS.value,
             )
 
         return user
